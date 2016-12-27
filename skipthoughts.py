@@ -20,8 +20,8 @@ profile = False
 #-----------------------------------------------------------------------------#
 # Specify model and table locations here
 #-----------------------------------------------------------------------------#
-path_to_models = '/u/rkiros/public_html/models/'
-path_to_tables = '/u/rkiros/public_html/models/'
+path_to_models = '/home/viktor/syn/skipt_models/'
+path_to_tables = '/home/viktor/syn/skipt_models/'
 #-----------------------------------------------------------------------------#
 
 path_to_umodel = path_to_models + 'uni_skip.npz'
@@ -124,10 +124,15 @@ def encode(model, X, use_norm=True, verbose=True, batch_size=128, use_eos=False)
             for ind, c in enumerate(caps):
                 caption = captions[c]
                 for j in range(len(caption)):
+                    print caption[j], d[caption[j]]
                     if d[caption[j]] > 0:
-                        uembedding[j,ind] = model['utable'][caption[j]]
+                        uembedding[j,ind] = model['utable'][caption[j]]  # word2vec part here
                         bembedding[j,ind] = model['btable'][caption[j]]
                     else:
+
+                        # TODO use other w2v embedding here
+                        # TODO also that need to be trained first
+
                         uembedding[j,ind] = model['utable']['UNK']
                         bembedding[j,ind] = model['btable']['UNK']
                 if use_eos:
