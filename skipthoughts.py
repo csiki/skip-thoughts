@@ -124,7 +124,6 @@ def encode(model, X, use_norm=True, verbose=True, batch_size=128, use_eos=False)
             for ind, c in enumerate(caps):
                 caption = captions[c]
                 for j in range(len(caption)):
-                    print caption[j], d[caption[j]]
                     if d[caption[j]] > 0:
                         uembedding[j,ind] = model['utable'][caption[j]]  # word2vec part here
                         bembedding[j,ind] = model['btable'][caption[j]]
