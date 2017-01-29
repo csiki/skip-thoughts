@@ -5,10 +5,10 @@ import os
 
 import theano
 import theano.tensor as tensor
+import tensorflow as tf
 
 import cPickle as pkl
 import numpy
-import copy
 import nltk
 
 from collections import OrderedDict, defaultdict
@@ -87,7 +87,7 @@ def load_tables():
     return utable, btable
 
 
-def encode(model, X, use_norm=True, verbose=True, batch_size=128, use_eos=False):
+def encode(model, X, w2s_model=None, word_model_vocab=None, use_norm=True, verbose=True, batch_size=128, use_eos=False):
     """
     Encode sentences in the list X. Each entry will return a vector
     """
@@ -108,6 +108,7 @@ def encode(model, X, use_norm=True, verbose=True, batch_size=128, use_eos=False)
         ds[len(s)].append(i)
 
     # Get features. This encodes by length, in order to avoid wasting computation
+    all_words_found = True
     for k in ds.keys():
         if verbose:
             print k
@@ -129,11 +130,22 @@ def encode(model, X, use_norm=True, verbose=True, batch_size=128, use_eos=False)
                         bembedding[j,ind] = model['btable'][caption[j]]
                     else:
 
-                        # TODO use other w2v embedding here
-                        # TODO also that need to be trained first
+                        # vocabulary expansion
+                        if w2s_model and caption[j] in word_model_vocab:
+                            init_op = tf.initialize_all_variables()
+                            with w2s_model['session'].as_default():
+                                w2s_model['session'].run(init_op)
+                                y = w2s_model['session'].run(w2s_model['y'],
+                                                             feed_dict={model['x']: word_model_vocab[caption[j]]})
+                                y_val = y.eval()
+                                uembedding[j, ind] = y_val[:620]  # word model learns both representation at once
+                                bembedding[j, ind] = y_val[620:]  # 620 = model['boptions']['dim_word']
+                            tf.reset_default_graph()  # not sure this is needed
+                        else:
+                            all_words_found = False
+                            uembedding[j,ind] = model['utable']['UNK']
+                            bembedding[j,ind] = model['btable']['UNK']
 
-                        uembedding[j,ind] = model['utable']['UNK']
-                        bembedding[j,ind] = model['btable']['UNK']
                 if use_eos:
                     uembedding[-1,ind] = model['utable']['<eos>']
                     bembedding[-1,ind] = model['btable']['<eos>']
@@ -152,7 +164,7 @@ def encode(model, X, use_norm=True, verbose=True, batch_size=128, use_eos=False)
                 bfeatures[c] = bff[ind]
     
     features = numpy.c_[ufeatures, bfeatures]
-    return features
+    return features, all_words_found
 
 
 def preprocess(text):
@@ -178,7 +190,7 @@ def nn(model, text, vectors, query, k=5):
     vectors: the corresponding representations for text
     query: a string to search
     """
-    qf = encode(model, [query])
+    qf, _ = encode(model, [query])
     qf /= norm(qf)
     scores = numpy.dot(qf, vectors.T).flatten()
     sorted_args = numpy.argsort(scores)[::-1]

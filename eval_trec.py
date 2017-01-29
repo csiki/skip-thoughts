@@ -23,7 +23,7 @@ def evaluate(model, k=10, seed=1234, evalcv=True, evaltest=False):
     train, train_labels = shuffle(train, train_labels, random_state=seed)
 
     print 'Computing training skipthoughts...'
-    trainF = skipthoughts.encode(model, train, verbose=False, use_eos=False)
+    trainF, _ = skipthoughts.encode(model, train, verbose=False, use_eos=False)
     
     if evalcv:
         print 'Running cross-validation...'
@@ -35,7 +35,7 @@ def evaluate(model, k=10, seed=1234, evalcv=True, evaltest=False):
             C = 128     # Best parameter found from CV
 
         print 'Computing testing skipthoughts...'
-        testF = skipthoughts.encode(model, test, verbose=False, use_eos=False)
+        testF, _ = skipthoughts.encode(model, test, verbose=False, use_eos=False)
 
         print 'Evaluating...'
         clf = LogisticRegression(C=C)

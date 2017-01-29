@@ -21,8 +21,8 @@ def evaluate(model, k=10, seed=1234, evalcv=True, evaltest=False, use_feats=True
     traintext, testtext, labels = load_data()
 
     print 'Computing training skipthoughts...'
-    trainA = skipthoughts.encode(model, traintext[0], verbose=False)
-    trainB = skipthoughts.encode(model, traintext[1], verbose=False)
+    trainA, _ = skipthoughts.encode(model, traintext[0], verbose=False)
+    trainB, _ = skipthoughts.encode(model, traintext[1], verbose=False)
 
     if evalcv:
         print 'Running cross-validation...'
@@ -33,8 +33,8 @@ def evaluate(model, k=10, seed=1234, evalcv=True, evaltest=False, use_feats=True
             C = 4    # Best parameter found from CV (combine-skip with use_feats=True)
 
         print 'Computing testing skipthoughts...'
-        testA = skipthoughts.encode(model, testtext[0], verbose=False)
-        testB = skipthoughts.encode(model, testtext[1], verbose=False)
+        testA, _ = skipthoughts.encode(model, testtext[0], verbose=False)
+        testB, _ = skipthoughts.encode(model, testtext[1], verbose=False)
 
         if use_feats:
             train_features = np.c_[np.abs(trainA - trainB), trainA * trainB, feats(traintext[0], traintext[1])]

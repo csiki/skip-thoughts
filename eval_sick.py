@@ -23,20 +23,20 @@ def evaluate(model, seed=1234, evaltest=False):
     train[0], train[1], scores[0] = shuffle(train[0], train[1], scores[0], random_state=seed)
     
     print 'Computing training skipthoughts...'
-    trainA = skipthoughts.encode(model, train[0], verbose=False, use_eos=True)
-    trainB = skipthoughts.encode(model, train[1], verbose=False, use_eos=True)
+    trainA, _ = skipthoughts.encode(model, train[0], verbose=False, use_eos=True)
+    trainB, _ = skipthoughts.encode(model, train[1], verbose=False, use_eos=True)
     
     print 'Computing development skipthoughts...'
-    devA = skipthoughts.encode(model, dev[0], verbose=False, use_eos=True)
-    devB = skipthoughts.encode(model, dev[1], verbose=False, use_eos=True)
+    devA, _ = skipthoughts.encode(model, dev[0], verbose=False, use_eos=True)
+    devB, _ = skipthoughts.encode(model, dev[1], verbose=False, use_eos=True)
 
     print 'Computing feature combinations...'
     trainF = np.c_[np.abs(trainA - trainB), trainA * trainB]
     devF = np.c_[np.abs(devA - devB), devA * devB]
 
     print 'Encoding labels...'
-    trainY = encode_labels(scores[0])
-    devY = encode_labels(scores[1])
+    trainY, _ = encode_labels(scores[0])
+    devY, _ = encode_labels(scores[1])
 
     print 'Compiling model...'
     lrmodel = prepare_model(ninputs=trainF.shape[1])
@@ -46,8 +46,8 @@ def evaluate(model, seed=1234, evaltest=False):
 
     if evaltest:
         print 'Computing test skipthoughts...'
-        testA = skipthoughts.encode(model, test[0], verbose=False, use_eos=True)
-        testB = skipthoughts.encode(model, test[1], verbose=False, use_eos=True)
+        testA, _ = skipthoughts.encode(model, test[0], verbose=False, use_eos=True)
+        testB, _ = skipthoughts.encode(model, test[1], verbose=False, use_eos=True)
 
         print 'Computing feature combinations...'
         testF = np.c_[np.abs(testA - testB), testA * testB]

@@ -24,7 +24,7 @@ def load_data(model, name, loc='./data/', seed=1234):
     z['text'] = text
     z['labels'] = labels
     print 'Computing skip-thought vectors...'
-    features = skipthoughts.encode(model, text, verbose=False)
+    features, success = skipthoughts.encode(model, text, verbose=False)
     return z, features
 
 
