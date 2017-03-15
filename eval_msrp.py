@@ -3,6 +3,9 @@
 import numpy as np
 import skipthoughts
 
+import nltk
+nltk.data.path.append('/mnt/disks/data/nltk')  # FIXME specific to the google cloud server
+
 from collections import defaultdict
 from nltk.tokenize import word_tokenize
 from numpy.random import RandomState

@@ -9,6 +9,7 @@ from theano.sandbox.rng_mrg import MRG_RandomStreams as RandomStreams
 import cPickle as pkl
 import numpy
 import nltk
+nltk.data.path.append('/mnt/disks/data/nltk')  # FIXME specific to the google cloud server
 
 from collections import OrderedDict, defaultdict
 from nltk.tokenize import word_tokenize

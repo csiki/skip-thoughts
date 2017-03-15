@@ -10,6 +10,7 @@ import tensorflow as tf
 import cPickle as pkl
 import numpy
 import nltk
+nltk.data.path.append('/mnt/disks/data/nltk')  # FIXME specific to the google cloud server
 
 from collections import OrderedDict, defaultdict
 from scipy.linalg import norm
@@ -28,8 +29,12 @@ profile = False
 #-----------------------------------------------------------------------------#
 # Specify model and table locations here
 #-----------------------------------------------------------------------------#
-path_to_models = '/home/viktor/syn/skipt_models/'
-path_to_tables = '/home/viktor/syn/skipt_models/'
+# local
+# path_to_models = '/home/viktor/syn/skipt_models/'
+# path_to_tables = '/home/viktor/syn/skipt_models/'
+# server
+path_to_models = '/mnt/disks/data/syn/skipt_models/'
+path_to_tables = '/mnt/disks/data/syn/skipt_models/'
 #-----------------------------------------------------------------------------#
 
 path_to_umodel = path_to_models + 'uni_skip.npz'
