@@ -15,6 +15,14 @@ from collections import OrderedDict, defaultdict
 from scipy.linalg import norm
 from nltk.tokenize import word_tokenize
 
+import os
+import inspect
+currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+parentdir = os.path.dirname(currentdir)
+os.sys.path.insert(0, parentdir)
+from app import config
+from lib import glove_to_skipt
+
 profile = False
 
 #-----------------------------------------------------------------------------#
@@ -87,7 +95,7 @@ def load_tables():
     return utable, btable
 
 
-def encode(model, X, w2s_model=None, word_model_vocab=None, use_norm=True, verbose=True, batch_size=128, use_eos=False):
+def encode(model, X, word_model_vocab=None, use_norm=True, verbose=True, batch_size=128, use_eos=False):
     """
     Encode sentences in the list X. Each entry will return a vector
     """
@@ -131,17 +139,11 @@ def encode(model, X, w2s_model=None, word_model_vocab=None, use_norm=True, verbo
                     else:
 
                         # vocabulary expansion
-                        if w2s_model and caption[j] in word_model_vocab:
-                            init_op = tf.initialize_all_variables()
-                            with w2s_model['session'].as_default():
-                                w2s_model['session'].run(init_op)
-                                x_val = numpy.reshape(word_model_vocab[caption[j]], (-1, 300))  # 300 = glove dim
-                                y_val = w2s_model['session'].run(w2s_model['y'],
-                                                                 feed_dict={w2s_model['x']: x_val})
-                                y_val = numpy.reshape(y_val, (1240,))
-                                uembedding[j, ind] = y_val[:620]  # word model learns both representation at once
-                                bembedding[j, ind] = y_val[620:]  # 620 = model['boptions']['dim_word']
-                            tf.reset_default_graph()  # not sure this is needed
+                        if caption[j] in word_model_vocab:
+                            x_val = numpy.reshape(word_model_vocab[caption[j]], (-1, 300))  # 300 = glove dim
+                            y_val = numpy.reshape(glove_to_skipt.glove2skipt(x_val), (1240,))
+                            uembedding[j, ind] = y_val[:620]  # word model learns both representation at once
+                            bembedding[j, ind] = y_val[620:]  # 620 = model['boptions']['dim_word']
                             meta_info['glove_words'].append(caption[j])
                         else:
                             meta_info['unknown_words'].append(caption[j])
@@ -254,7 +256,7 @@ def load_params(path, params):
     pp = numpy.load(path)
     for kk, vv in params.iteritems():
         if kk not in pp:
-            warnings.warn('%s is not in the archive'%kk)
+            print '%s is not in the archive' % kk
             continue
         params[kk] = pp[kk]
     return params
